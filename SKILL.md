@@ -4,7 +4,6 @@ description: >
   将组件动效接入 vibemotion 调参面板。当用户说「加动效面板」「接入调参」
   「给 XX 组件加参数调节」「接动效」「vibemotion」「调参面板」「动效编辑」时触发。
   也适用于用户要求让某个组件的动画参数可以实时调节预览的场景。
-  当用户问"这个 skill 怎么用"或"motion-connect 是什么"时，展示使用指引。
 ---
 
 # Motion Connect
