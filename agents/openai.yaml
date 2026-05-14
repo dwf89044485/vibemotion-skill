@@ -1,0 +1,3 @@
+display_name: Motion Connect
+short_description: 将组件动效接入 vibemotion 调参面板
+default_prompt: 帮我把动效接入调参面板
