@@ -85,15 +85,39 @@ document.body.appendChild(editor);
 
 读组件源码，找所有动画可调数值。**分析过程不输出给用户。**
 
+扫描以下类型的数值：
+- 时间参数：`duration`、`delay`、`staggerChildren`、`transition` 配置
+- 弹簧参数：`damping`、`stiffness`、`mass`
+- 变换目标值：`scale`、`rotate`、`x`、`y`、`opacity`
+- 视觉效果：`blur`、`borderRadius`、`shadow`
+- 布局数值：间距、偏移、角度、宽高等自定义值
+- CSS animation：`@keyframes` 里的起止值、`animation-duration`、`animation-delay`
+
 提炼规则：
-- 过滤用户感知不到差别的底层量
-- 可聚合的合成一根旋钮（translateY + scale → "悬浮强度"）
-- 中文 label
+- 过滤用户感知不到差别的底层量（纯内部索引、中间计算变量、fill-mode 等）
+- 可聚合的合成一根旋钮（translateY + scale + blur → "悬浮强度"）
+- 中文 label（"入场速度"不是"durationBase"）
 - min/max 只给有效感知区间，极值不崩
+- 按用户心智模型分组（"入场节奏""视觉强度"），不按代码结构分
+
+区分关键参数与噪音：
+- **推荐暴露**：调了视觉变化明显、用户直觉能理解
+- **建议跳过**：颗粒度太细、单独调容易破坏效果（如 spring 三参数中只暴露"弹性感"一根聚合旋钮）
+- 判断不了的，标为「可选」放在列表末尾让用户决定
 
 #### 1B. 发现可切换状态（静默）
 
-扫描 props 模式、内部 state、交互态。推荐暴露视觉差异大且有动画过渡的。
+**全面扫描以下所有类型**，不要遗漏：
+
+- **业务模式（props 传入）**：看组件 props/interface 定义，找控制视觉差异的 prop（如 `mode`、`variant`、`collapsed`）。注意：props 不在组件内部声明，容易漏。
+- **操作状态（内部 state）**：看 `useState` 声明，找控制视觉切换的 state（如 `isOpen`、`isExpanded`、`activeTab`）
+- **交互态**：`hover`、`active`、`focus` 等由鼠标/键盘触发的视觉反馈
+
+判断哪些值得暴露：
+- **推荐暴露**：状态间视觉差异大，且切换过程有动画需要调
+- **建议跳过**：状态间没有动画过渡（纯静态内容替换），或差异太小
+
+不同组件的重点不同——sidebar 的核心可能是展开/收起，卡片的核心可能是 hover 动效。不要预设哪类更重要，全部找出来再筛。
 
 #### 1C. 呈现给用户
 
@@ -123,6 +147,18 @@ N+1. 全部（含底层参数）
 ### 阶段 2：写代码
 
 用户确认后一口气完成。
+
+#### 命名规范
+
+| 字段 | 规则 | 示例 |
+|------|------|------|
+| 导出常量名 | `UPPER_SNAKE_CASE` + `_MOTION` 后缀 | `SIDEBAR_MOTION` |
+| id | 全小写 kebab-case | `"chat-input"` |
+| label | 中文 | `"聊天输入框"` |
+| schema.group | 中文，简短 | `"入场节奏"`、`"视觉强度"` |
+| schema.key | camelCase，语义化 | `"entrySpeed"`、`"hoverLift"` |
+| states.value | 全小写英文 | `"hover"`、`"collapsed"` |
+| states.label | 中文 | `"悬停"`、`"收起"` |
 
 #### React
 
